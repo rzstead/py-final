@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from blog.models import Post, Comment
+from blog.models import Post, Comment, Review
 from django.utils import timezone
 from blog.forms import PostForm, CommentForm, ReviewForm
 
@@ -27,8 +27,10 @@ class PostDetailView(DetailView):
     model = Post
 
 
-class CreatePostView(LoginRequiredMixin,CreateView):
+
+class CreatePostView(LoginRequiredMixin, CreateView):
     login_url = '/login/'
+    success_url = reverse_lazy('post_draft_list')
     redirect_field_name = 'blog/post_detail.html'
     form_class = PostForm
     model = Post
@@ -58,14 +60,9 @@ class PostDeleteView(LoginRequiredMixin,DeleteView):
 #######################################
 
 @login_required
-def post_publish(request, code):
-    post = get_object_or_404(Post, pk=code)
-    post.publish()
-    return redirect('post_detail', code=code)
-
-@login_required
-def add_comment_to_post(request, pk):
+def post_publish(request, pk):
     post = get_object_or_404(Post, pk=pk)
+    post.publish()
     if request.method == "POST":
         form = CommentForm(request.POST)
         if form.is_valid():
@@ -92,7 +89,21 @@ def comment_remove(request, pk):
     comment.delete()
     return redirect('post_detail', pk=post_code)
 
-@login_required
+@login_required()
+def add_comment_to_post(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.save()
+            return redirect('post_detail', pk=post.pk)
+    else:
+        form = CommentForm()
+    return render(request, 'blog/comment_form.html', {'form': form})
+
+
 def add_review_to_post(request, pk):
     post = get_object_or_404(Post, pk=pk)
     if request.method == "POST":
@@ -104,4 +115,4 @@ def add_review_to_post(request, pk):
             return redirect('post_detail', pk=post.pk)
     else:
         form = ReviewForm()
-    return render(request, 'blog/comment_form.html', {'form': form})
+    return render(request, 'blog/review_form.html', {'form': form})

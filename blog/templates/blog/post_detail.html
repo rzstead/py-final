@@ -3,49 +3,63 @@
 {% block content %}
 
 
-        <h1 class='posttitle loader'>{{ post.title }}</h1>
+    <h1 class='posttitle loader'>{{ post.title }}</h1>
 
-        {% if post.published_date %}
-            <div class="date postdate">
-                {{ post.published_date }}
-            </div>
+    {% if post.published_date %}
+        <div class="date postdate">
+            {{ post.published_date }}
+        </div>
 
-        {% else %}
-            <a class="btn btn-default" href="{% url 'post_publish' pk=post.pk %}">Publish</a>
-        {% endif %}
+    {% else %}
+        <a class="btn btn-default" href="{% url 'post_publish' pk=post.pk %}">Publish</a>
+    {% endif %}
 
-      <p class='postcontent' >{{ post.text|safe|linebreaksbr }}</p>
-
-
-      {% if user.is_authenticated %}
-          <a class="btn btn-primary" href="{% url 'post_edit' pk=post.pk %}"><span class="glyphicon glyphicon-pencil"></span></a>
-          <a class="btn btn-primary" href="{% url 'post_remove' pk=post.pk %}"><span class="glyphicon glyphicon-remove"></span></a>
-      {% endif %}
+    <p class='postcontent'>{{ post.text|safe|linebreaksbr }}</p>
 
 
+    {% if user.is_authenticated %}
+        <a class="btn btn-primary" href="{% url 'post_edit' pk=post.pk %}"><span
+                class="glyphicon glyphicon-pencil"></span></a>
+        <a class="btn btn-primary" href="{% url 'post_remove' pk=post.pk %}"><span
+                class="glyphicon glyphicon-remove"></span></a>
+    {% endif %}
 
-  <hr>
+
+
+    <hr>
     <a class="btn btn-primary btn-review" href="{% url 'add_review_to_post' pk=post.pk %}">Add Review</a>
-  <a class="btn btn-primary btn-comment" href="{% url 'add_comment_to_post' pk=post.pk %}">Add comment</a>
-  <div class="container">
+    <a class="btn btn-primary btn-comment" href="{% url 'add_comment_to_post' pk=post.pk %}">Add comment</a>
+    <div class="container">
+        <h2>Reviews</h2>
+        {% for review in post.reviews.all %}
+            <br>
+            <p>Rating: {{ review.rating }}</p>
+            <p>{{ review.text|safe|linebreaks }}</p>
+            <p>Posted by: <strong>{{ review.author }}</strong></p>
 
-  {% for comment in post.comments.all %}
-  <br>
-      {% if user.is_authenticated or comment.approved_comment %}
+        {% empty %}
+            <p>No reviews posted.</p>
+        {% endfor %}
 
-              {{ comment.created_date }}
-              {% if not comment.approved_comment %}
-                  <a class="btn btn-default" href="{% url 'comment_remove' pk=comments.pk %}"><span class="glyphicon glyphicon-remove"></span></a>
-                  <a class="btn btn-default" href="{% url 'comment_approve' pk=comments.pk %}"><span class="glyphicon glyphicon-ok"></span></a>
-              {% endif %}
+        {% for comment in post.comments.all %}
+            <br>
+            {% if user.is_authenticated or comment.approved_comment %}
 
-          <p>{{ comment.text|safe|linebreaks }}</p>
-          <p>Posted by: <strong>{{ comment.author }}</strong></p>
+                {{ comment.created_date }}
+                {% if not comment.approved_comment %}
+                    <a class="btn btn-default" href="{% url 'comment_remove' pk=comments.pk %}"><span
+                            class="glyphicon glyphicon-remove"></span></a>
+                    <a class="btn btn-default" href="{% url 'comment_approve' pk=comments.pk %}"><span
+                            class="glyphicon glyphicon-ok"></span></a>
+                {% endif %}
 
-      {% endif %}
-  {% empty %}
-      <p>No comments posted.</p>
-  {% endfor %}
-</div>
+                <p>{{ comment.text|safe|linebreaks }}</p>
+                <p>Posted by: <strong>{{ comment.author }}</strong></p>
+
+            {% endif %}
+        {% empty %}
+            <p>No comments posted.</p>
+        {% endfor %}
+    </div>
 
 {% endblock %}

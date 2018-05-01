@@ -35,6 +35,6 @@ class ReviewForm(forms.ModelForm):
 
         widgets = {
             'rating': forms.NumberInput(attrs={'class': 'textinputclass'}),
-            'text': forms.Textarea(attrs={'class': 'editable medium-editor-textarea postcontent'}),
+            'text': forms.Textarea(attrs={'class': 'editable medium-editor-textarea'}),
         }
 
