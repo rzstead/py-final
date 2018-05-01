@@ -1,0 +1,14 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+    <h1>Enter your review</h1>
+    <form method="POST" class="review-form">
+    {% csrf_token %}
+    {{form.as_p}}
+        <h1>In review</h1>
+    <button type="submit" class="save btn btn-default">Submit Review</button>
+    </form>
+
+    <script>var editor = new MediumEditor('.editable');</script>
+
+{% endblock %}
